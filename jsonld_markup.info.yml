@@ -1,0 +1,7 @@
+name: JSONLD_Markup
+description: Generator a schema.org compliant JSON-LD and inject it into the page HTML.
+package: Custom
+type: module
+version: 1.0
+core: 8.x
+core_version_requirement: ">=8"

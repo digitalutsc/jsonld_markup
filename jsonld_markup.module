@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * Implements hook_page_attachments_alter().
+ *
+ * Load all meta tags for this page, then separate out the structured data.
+ */
+function jsonld_markup_page_attachments_alter(array &$attachments) {
+
+  $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
+
+  try {
+    $response = \Drupal::httpClient()->request('GET', $currentURL);
+    $jsonld= $response->getBody()->getContents();
+  
+  } catch (\Exception $e) {
+    $jsonld = $e->getMessage();
+  }
+
+  $attachments['#attached']['html_head'][] = [
+    [
+      '#type' => 'html_tag',
+      '#tag' => 'script',
+      '#value' => $jsonld,
+      '#attributes' => ['type' => 'application/ld+json'],
+    ],
+  ];
+}

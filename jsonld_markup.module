@@ -1,9 +1,24 @@
 <?php
 
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_jsonld_alter_normalized_array().
+ *
+ * Set the schema.org type for the node
+ *
+ */
+
+function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
+  $normalized['@graph']['0']['@type'] = ["http://schema.org/ImageObject"];
+}
+
+
 /**
  * Implements hook_page_attachments_alter().
  *
  * Load all meta tags for this page, then separate out the structured data.
+ *
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {
 

@@ -1,16 +1,21 @@
 <?php
 
 use Drupal\Core\Entity\EntityInterface;
-
-/**
- * Implements hook_jsonld_alter_normalized_array().
- *
- * Set the schema.org type for the node
- *
- */
+use Drupal\node\Entity\Node;
+use Drupal\node\NodeInterface;
 
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
-  $normalized['@graph']['0']['@type'] = ["http://schema.org/ImageObject"];
+  if(($node = \Drupal::routeMatch()->getParameter('node'))){
+    if ($node instanceof \Drupal\node\NodeInterface) {
+      $nid = $node->id();
+      $node = \Drupal\node\Entity\Node::load($nid);
+      if($node->hasField('field_schema_type')){
+        $my_field_data = $node->get('field_schema_type')->getValue();
+        $my_field_value= $my_field_data [0]['value'];
+      }
+    }
+  }
+  $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
 }
 
 

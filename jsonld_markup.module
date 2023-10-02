@@ -15,7 +15,9 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
       }
     }
   }
-  $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
+  if(isset($my_field_data)){
+    $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
+  }
 }
 
 

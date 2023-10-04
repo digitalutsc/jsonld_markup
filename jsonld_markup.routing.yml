@@ -1,0 +1,15 @@
+jsonld_markup.page:
+  path: '/jsonld_markup/content'
+  defaults:
+    _controller: '\Drupal\jsonld_markup\Controller\JsonLDMarkupPage::content'
+    _title: 'Content'
+  requirements:
+    _permission: 'access content'
+
+system.jsonld_markup_settings:
+  path: '/admin/config/search/jsonld_markup'
+  defaults:
+    _form: '\Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm'
+    _title: 'JsonLD Markup Settings'
+  requirements:
+    _permission: 'administer site configuration'

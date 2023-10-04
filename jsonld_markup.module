@@ -4,6 +4,14 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\Entity\Node;
 use Drupal\node\NodeInterface;
 
+
+/**
+ * Implements hook_jsonld_alter_normalized_array().
+ *
+ * Alter the normalized array based on the value of a field type
+ *
+ */
+
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
   if(($node = \Drupal::routeMatch()->getParameter('node'))){
     if ($node instanceof \Drupal\node\NodeInterface) {

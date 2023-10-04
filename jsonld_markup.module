@@ -13,12 +13,16 @@ use Drupal\node\NodeInterface;
  */
 
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
+  $config = \Drupal::state()->get(\Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
+  $field = ($config['schema_field']) ?: '';
+
+
   if(($node = \Drupal::routeMatch()->getParameter('node'))){
     if ($node instanceof \Drupal\node\NodeInterface) {
       $nid = $node->id();
       $node = \Drupal\node\Entity\Node::load($nid);
-      if($node->hasField('field_schema_type')){
-        $my_field_data = $node->get('field_schema_type')->getValue();
+      if($node->hasField($field)){
+        $my_field_data = $node->get($field)->getValue();
         $my_field_value= $my_field_data [0]['value'];
       }
     }
@@ -26,6 +30,8 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
   if(isset($my_field_data)){
     $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
   }
+
+
 }
 
 

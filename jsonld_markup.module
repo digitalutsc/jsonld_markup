@@ -6,19 +6,22 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\NodeInterface;
+use \Drupal\node\Entity\Node;
+use \Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm;
 
 /**
  * Implements hook_jsonld_alter_normalized_array().
  */
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
-  #Alter the normalized array based on the value of a configured field type.
-  $config = \Drupal::state()->get(\Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
+  //Alter the normalized array based on the value of a configured field type.
+  $config = \Drupal::state()->get(JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
   $field = ($config['schema_field']) ?: '';
 
   if (($node = \Drupal::routeMatch()->getParameter('node'))) {
-    if ($node instanceof \Drupal\node\NodeInterface) {
+    if ($node instanceof NodeInterface) {
       $nid = $node->id();
-      $node = \Drupal\node\Entity\Node::load($nid);
+      $node = Node::load($nid);
       if ($node->hasField($field)) {
         $my_field_data = $node->get($field)->getValue();
         $my_field_value = $my_field_data[0]['value'];
@@ -34,7 +37,7 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
  * Implements hook_page_attachments_alter().
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {
-  #Inject the JSON-LD into the HTML markup.
+  //Inject the JSON-LD into the HTML markup.
   $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
 
   try {

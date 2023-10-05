@@ -1,45 +1,39 @@
 <?php
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\node\Entity\Node;
-use Drupal\node\NodeInterface;
+/**
+ * @file
+ * Injects a schema.org JOSN-LD in the site HTML
+ */
 
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_jsonld_alter_normalized_array().
- *
- * Alter the normalized array based on the value of a configured field
- *
+ * Alter the normalized array based on the value of a configured field type
  */
-
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
   $config = \Drupal::state()->get(\Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
   $field = ($config['schema_field']) ?: '';
 
-
-  if(($node = \Drupal::routeMatch()->getParameter('node'))){
+  if (($node = \Drupal::routeMatch()->getParameter('node'))) {
     if ($node instanceof \Drupal\node\NodeInterface) {
       $nid = $node->id();
       $node = \Drupal\node\Entity\Node::load($nid);
-      if($node->hasField($field)){
+      if ($node->hasField($field)) {
         $my_field_data = $node->get($field)->getValue();
-        $my_field_value= $my_field_data [0]['value'];
+        $my_field_value = $my_field_data [0]['value'];
       }
     }
   }
   if(isset($my_field_data)){
     $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
   }
-
-
 }
 
 
 /**
  * Implements hook_page_attachments_alter().
- *
- * Inject the JSON-LD into the HTML
- *
+ * Inject the JSON-LD into the HTML markup
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {
 
@@ -47,8 +41,7 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
 
   try {
     $response = \Drupal::httpClient()->request('GET', $currentURL);
-    $jsonld= $response->getBody()->getContents();
-  
+    $jsonld = $response->getBody()->getContents();
   } catch (\Exception $e) {
     $jsonld = $e->getMessage();
   }

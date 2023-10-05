@@ -1,12 +1,16 @@
 <?php
 
-
 namespace Drupal\jsonld_markup\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-class JsonLDMarkupSettingsForm extends FormBase{
+/**
+ * Config form for the module.
+ *
+ * @package Drupal\jsonld_markup\Form
+ */
+class JsonLDMarkupSettingsForm extends FormBase {
 
     const JSONLD_MARKUP_SETTINGS_PAGE = 'jsonld_markup_settings_page:values';
 
@@ -45,6 +49,7 @@ class JsonLDMarkupSettingsForm extends FormBase{
 
         \Drupal::state()->set(self::JSONLD_MARKUP_SETTINGS_PAGE, $submitted_values);
         $messenger = \Drupal::service('messenger');
-        $messenger->addMessage($this->t("Configuration Saved"));        
+        $messenger->addMessage($this->t("Configuration Saved"));
     }
+
 }

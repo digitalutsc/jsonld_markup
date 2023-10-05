@@ -2,16 +2,16 @@
 
 /**
  * @file
- * Injects a schema.org JOSN-LD in the site HTML
+ * Injects a schema.org JOSN-LD in the site HTML.
  */
 
 use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Implements hook_jsonld_alter_normalized_array().
- * Alter the normalized array based on the value of a configured field type
  */
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
+  #Alter the normalized array based on the value of a configured field type.
   $config = \Drupal::state()->get(\Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
   $field = ($config['schema_field']) ?: '';
 
@@ -21,28 +21,27 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
       $node = \Drupal\node\Entity\Node::load($nid);
       if ($node->hasField($field)) {
         $my_field_data = $node->get($field)->getValue();
-        $my_field_value = $my_field_data [0]['value'];
+        $my_field_value = $my_field_data[0]['value'];
       }
     }
   }
-  if(isset($my_field_data)){
+  if (isset($my_field_data)) {
     $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
   }
 }
 
-
 /**
  * Implements hook_page_attachments_alter().
- * Inject the JSON-LD into the HTML markup
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {
-
+  #Inject the JSON-LD into the HTML markup.
   $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
 
   try {
     $response = \Drupal::httpClient()->request('GET', $currentURL);
     $jsonld = $response->getBody()->getContents();
-  } catch (\Exception $e) {
+  }
+  catch (\Exception $e) {
     $jsonld = $e->getMessage();
   }
 

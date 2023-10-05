@@ -8,7 +8,7 @@ use Drupal\node\NodeInterface;
 /**
  * Implements hook_jsonld_alter_normalized_array().
  *
- * Alter the normalized array based on the value of a field type
+ * Alter the normalized array based on the value of a configured field
  *
  */
 
@@ -38,7 +38,7 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
 /**
  * Implements hook_page_attachments_alter().
  *
- * Load all meta tags for this page, then separate out the structured data.
+ * Inject the JSON-LD into the HTML
  *
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {

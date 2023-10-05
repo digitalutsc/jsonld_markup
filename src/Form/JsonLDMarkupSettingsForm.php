@@ -23,7 +23,7 @@ class JsonLDMarkupSettingsForm extends FormBase{
         $form['schema_field'] = [
             '#type' => 'textfield',
             '#title' => $this->t("Schema Field"),
-            '#description' => $this->t("The field type the the schema type will be pulled from"),
+            '#description' => $this->t("The field the the schema type will be pulled from"),
             '#required' => TRUE,
             '#default_value' => $values['schema_field'],
 

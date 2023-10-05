@@ -1,3 +1,4 @@
+#JSON-LD Markup configuration form
 system.jsonld_markup_settings:
   path: '/admin/config/search/jsonld_markup'
   defaults:

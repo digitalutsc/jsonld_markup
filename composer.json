@@ -1,0 +1,22 @@
+{
+    "name": "drupal/jsonld_markup",
+    "description": "Inject a schema.org compliant Json-LD in the HTML markup or the site ",
+    "type": "drupal-module",
+    "homepage": "https://github.com/digitalutsc/jsonld_markup",
+    "authors": [
+        {
+            "name": "Ben Wilson (wilso929)",
+            "homepage": "https://github.com/wilso929",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/digitalutsc/jsonld_markup/issues",
+        "source": "https://github.com/digitalutsc/jsonld_markup"
+    },
+    "license": "GPL-2.0-or-later",
+    "minimum-stability": "dev",
+    "require": {
+        "islandora/jsonld": "^2.1"
+    }
+}

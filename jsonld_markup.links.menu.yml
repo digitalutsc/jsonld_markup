@@ -1,0 +1,6 @@
+# Core configuration form
+system.jsonld_markup_settings:
+  title: 'JsonLD Markup'
+  parent: system.admin_config_search
+  route_name: system.jsonld_markup_settings
+  description: 'Configure Jsonld Markup settings'

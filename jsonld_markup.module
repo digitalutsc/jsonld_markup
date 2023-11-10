@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\node\NodeInterface;
 use Drupal\node\Entity\Node;
 use Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Implements hook_jsonld_alter_normalized_array().
@@ -16,7 +17,11 @@ use Drupal\jsonld_markup\Form\JsonLDMarkupSettingsForm;
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
   // Alter the normalized array based on the value of a configured field type.
   $config = \Drupal::state()->get(JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
-  $field = ($config['schema_field']) ?: '';
+  if(!is_null($config['schema_field'])){
+    $field = $config['schema_field'];
+  }else{
+    $field = '';
+  }
 
   if (($node = \Drupal::routeMatch()->getParameter('node'))) {
     if ($node instanceof NodeInterface) {
@@ -44,8 +49,11 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
     $response = \Drupal::httpClient()->request('GET', $currentURL);
     $jsonld = $response->getBody()->getContents();
   }
-  catch (\Exception $e) {
-    $jsonld = $e->getMessage();
+  catch (GuzzleException $e) {
+    return;
+  }
+  catch (Exception $e) {
+    return;
   }
 
   $attachments['#attached']['html_head'][] = [

@@ -17,7 +17,7 @@ use GuzzleHttp\Exception\GuzzleException;
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
   // Alter the normalized array based on the value of a configured field type.
   $config = \Drupal::state()->get(JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
-  if(!is_null($config['schema_field'])){
+  if(!is_null($config) && !is_null($config['schema_field'])){
     $field = $config['schema_field'];
   }else{
     $field = '';
@@ -43,25 +43,30 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {
   // Inject the JSON-LD into the HTML markup.
-  $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
+  $route = strtok($_SERVER['REQUEST_URI'], '?');
+  $check = explode('/', $route);
+  if($check[1] === "node"){
+    $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $route . '?_format=jsonld';
+    \Drupal::logger('check')->notice($route);    
+    try {
+      $response = \Drupal::httpClient()->request('GET', $currentURL);
+      $jsonld = $response->getBody()->getContents();
+    }
+    catch (GuzzleException $e) {
+      return;
+    } 
+    catch (Exception $e) {
+      return;
+    }
 
-  try {
-    $response = \Drupal::httpClient()->request('GET', $currentURL);
-    $jsonld = $response->getBody()->getContents();
+    $attachments['#attached']['html_head'][] = [
+      [
+        '#type' => 'html_tag',
+        '#tag' => 'script',
+        '#value' => $jsonld,
+        '#attributes' => ['type' => 'application/ld+json'],
+      ],
+      'jsonld_markup'
+    ];
   }
-  catch (GuzzleException $e) {
-    return;
-  }
-  catch (Exception $e) {
-    return;
-  }
-
-  $attachments['#attached']['html_head'][] = [
-    [
-      '#type' => 'html_tag',
-      '#tag' => 'script',
-      '#value' => $jsonld,
-      '#attributes' => ['type' => 'application/ld+json'],
-    ],
-  ];
 }

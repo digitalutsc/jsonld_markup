@@ -32,9 +32,16 @@ class JsonLDMarkupSettingsForm extends FormBase {
       '#type' => 'textfield',
       '#title' => $this->t("Schema Field"),
       '#description' => $this->t("The field the the schema type will be pulled from"),
-      '#required' => TRUE,
+      '#required' => FALSE,
       '#default_value' => $values['schema_field'],
+    ];
 
+    $form['entity_types'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t("Entity Types"),
+      '#default_value' => $values['entity_types'],
+      '#description' => $this->t("The entity types to aplly JSONLDs to. One per line, no trailing spaces"),
+      '#required' => FALSE,
     ];
 
     $form['actions']['#type'] = 'actions';

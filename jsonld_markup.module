@@ -22,18 +22,19 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
   }else{
     $field = '';
   }
-
   if (($node = \Drupal::routeMatch()->getParameter('node'))) {
     if ($node instanceof NodeInterface) {
       $nid = $node->id();
       $node = Node::load($nid);
       if ($node->hasField($field)) {
         $my_field_data = $node->get($field)->getValue();
-        $my_field_value = $my_field_data[0]['value'];
+        if(count($my_field_data) > 0){
+          $my_field_value = $my_field_data[0]['value'];
+        }
       }
     }
   }
-  if (isset($my_field_data)) {
+  if (isset($my_field_value)) {
     $normalized['@graph']['0']['@type'] = ["http://schema.org/" . $my_field_value];
   }
 }
@@ -43,30 +44,48 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
  */
 function jsonld_markup_page_attachments_alter(array &$attachments) {
   // Inject the JSON-LD into the HTML markup.
-  $route = strtok($_SERVER['REQUEST_URI'], '?');
-  $check = explode('/', $route);
-  if($check[1] === "node"){
-    $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . $route . '?_format=jsonld';
-    \Drupal::logger('check')->notice($route);    
-    try {
-      $response = \Drupal::httpClient()->request('GET', $currentURL);
-      $jsonld = $response->getBody()->getContents();
-    }
-    catch (GuzzleException $e) {
-      return;
-    } 
-    catch (Exception $e) {
-      return;
-    }
+  $config = \Drupal::state()->get(JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
+  if(!is_null($config) && !is_null($config['entity_types'])){
+    $entities = $config['entity_types'];
+  }else{
+    return;
+  }
+  $types =  explode("\n", $entities);
 
-    $attachments['#attached']['html_head'][] = [
-      [
-        '#type' => 'html_tag',
-        '#tag' => 'script',
-        '#value' => $jsonld,
-        '#attributes' => ['type' => 'application/ld+json'],
-      ],
-      'jsonld_markup'
-    ];
+  $current_route = \Drupal::routeMatch();
+  $name = $current_route->getRouteName();
+  foreach ($current_route->getParameters() as $param) {
+    if ($param instanceof EntityInterface) {
+      $entity_type = $param->bundle();
+    }
+  }
+
+  if(isset($entity_type) && strcmp("entity.node.canonical", trim($name)) === 0){
+    foreach($types as &$type){
+      if(strcmp(trim($entity_type), trim($type)) === 0){
+        $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
+        try {
+          $response = \Drupal::httpClient()->request('GET', $currentURL);
+          $jsonld = $response->getBody()->getContents();
+        }
+        catch (GuzzleException $e) {
+          return;
+        } 
+        catch (Exception $e) {
+          return;
+        }
+    
+        $attachments['#attached']['html_head'][] = [
+          [
+            '#type' => 'html_tag',
+            '#tag' => 'script',
+            '#value' => $jsonld,
+            '#attributes' => ['type' => 'application/ld+json'],
+          ],
+          'jsonld_markup'
+        ];
+        return;
+      }
+    } 
   }
 }

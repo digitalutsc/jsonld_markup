@@ -54,13 +54,13 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
 
   $current_route = \Drupal::routeMatch();
   $name = $current_route->getRouteName();
+  $cannon = explode(".", $name);
   foreach ($current_route->getParameters() as $param) {
     if ($param instanceof EntityInterface) {
       $entity_type = $param->bundle();
     }
   }
-
-  if(isset($entity_type) && strcmp("entity.node.canonical", trim($name)) === 0){
+  if(isset($entity_type) && strcmp(trim(end($cannon)), "canonical") === 0){
     foreach($types as &$type){
       if(strcmp(trim($entity_type), trim($type)) === 0){
         $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
@@ -69,12 +69,13 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
           $jsonld = $response->getBody()->getContents();
         }
         catch (GuzzleException $e) {
+          \Drupal::logger('jsonld_markup Guzzle')->notice($e->getMessage());
           return;
         } 
         catch (Exception $e) {
+          \Drupal::logger('jsonld_markup')->notice($e->getMessage());
           return;
         }
-    
         $attachments['#attached']['html_head'][] = [
           [
             '#type' => 'html_tag',

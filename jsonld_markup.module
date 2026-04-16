@@ -17,9 +17,10 @@ use GuzzleHttp\Exception\GuzzleException;
 function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, array &$normalized, array $context) {
   // Alter the normalized array based on the value of a configured field type.
   $config = \Drupal::state()->get(JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
-  if(!is_null($config) && !is_null($config['schema_field'])){
+  if (!is_null($config) && !is_null($config['schema_field'])) {
     $field = $config['schema_field'];
-  }else{
+  }
+  else {
     $field = '';
   }
   if (($node = \Drupal::routeMatch()->getParameter('node'))) {
@@ -28,7 +29,7 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
       $node = Node::load($nid);
       if ($node->hasField($field)) {
         $my_field_data = $node->get($field)->getValue();
-        if(count($my_field_data) > 0){
+        if (count($my_field_data) > 0) {
           $my_field_value = $my_field_data[0]['value'];
         }
       }
@@ -45,12 +46,13 @@ function jsonld_markup_jsonld_alter_normalized_array(EntityInterface $entity, ar
 function jsonld_markup_page_attachments_alter(array &$attachments) {
   // Inject the JSON-LD into the HTML markup.
   $config = \Drupal::state()->get(JsonLDMarkupSettingsForm::JSONLD_MARKUP_SETTINGS_PAGE);
-  if(!is_null($config) && !is_null($config['entity_types'])){
+  if (!is_null($config) && !is_null($config['entity_types'])) {
     $entities = $config['entity_types'];
-  }else{
+  }
+  else {
     return;
   }
-  $types =  explode("\n", $entities);
+  $types = explode("\n", $entities);
 
   $current_route = \Drupal::routeMatch();
   $name = $current_route->getRouteName();
@@ -60,9 +62,9 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
       $entity_type = $param->bundle();
     }
   }
-  if(isset($entity_type) && strcmp(trim(end($cannon)), "canonical") === 0){
-    foreach($types as &$type){
-      if(strcmp(trim($entity_type), trim($type)) === 0){
+  if (isset($entity_type) && strcmp(trim(end($cannon)), "canonical") === 0) {
+    foreach ($types as &$type) {
+      if (strcmp(trim($entity_type), trim($type)) === 0) {
         $currentURL = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'] . strtok($_SERVER['REQUEST_URI'], '?') . '?_format=jsonld';
         try {
           $response = \Drupal::httpClient()->request('GET', $currentURL);
@@ -71,7 +73,7 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
         catch (GuzzleException $e) {
           \Drupal::logger('jsonld_markup Guzzle')->notice($e->getMessage());
           return;
-        } 
+        }
         catch (Exception $e) {
           \Drupal::logger('jsonld_markup')->notice($e->getMessage());
           return;
@@ -83,10 +85,10 @@ function jsonld_markup_page_attachments_alter(array &$attachments) {
             '#value' => $jsonld,
             '#attributes' => ['type' => 'application/ld+json'],
           ],
-          'jsonld_markup'
+          'jsonld_markup',
         ];
         return;
       }
-    } 
+    }
   }
 }

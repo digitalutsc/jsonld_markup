@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:disable -- DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
+
 namespace Drupal\jsonld_markup\Form;
 
 use Drupal\Core\Form\FormBase;

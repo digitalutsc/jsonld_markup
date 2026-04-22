@@ -1,11 +1,12 @@
 <?php
 
-// phpcs:disable -- DrupalPractice.Objects.GlobalDrupal.GlobalDrupal
-
 namespace Drupal\jsonld_markup\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\State\StateInterface;
+use Drupal\Core\Messenger\MessengerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Config form for the module.
@@ -15,6 +16,36 @@ use Drupal\Core\Form\FormStateInterface;
 class JsonLDMarkupSettingsForm extends FormBase {
 
   const JSONLD_MARKUP_SETTINGS_PAGE = 'jsonld_markup_settings_page:values';
+
+  /**
+   * The state service.
+   *
+   * @var \Drupal\Core\State\StateInterface
+   */
+  protected StateInterface $state;
+
+  /**
+   * Constructs a JsonLDMarkupSettingsForm object.
+   *
+   * @param \Drupal\Core\State\StateInterface $state
+   *   The state service.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger service.
+   */
+  public function __construct(StateInterface $state, MessengerInterface $messenger) {
+    $this->state = $state;
+    $this->messenger = $messenger;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('state'),
+      $container->get('messenger')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -27,7 +58,7 @@ class JsonLDMarkupSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $values = \Drupal::state()->get(self::JSONLD_MARKUP_SETTINGS_PAGE);
+    $values = $this->state->get(self::JSONLD_MARKUP_SETTINGS_PAGE);
     $form = [];
 
     $form['schema_field'] = [
@@ -62,9 +93,8 @@ class JsonLDMarkupSettingsForm extends FormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $submitted_values = $form_state->cleanValues()->getValues();
 
-    \Drupal::state()->set(self::JSONLD_MARKUP_SETTINGS_PAGE, $submitted_values);
-    $messenger = \Drupal::service('messenger');
-    $messenger->addMessage($this->t("Configuration Saved"));
+    $this->state->set(self::JSONLD_MARKUP_SETTINGS_PAGE, $submitted_values);
+    $this->messenger->addMessage($this->t("Configuration Saved"));
   }
 
 }
